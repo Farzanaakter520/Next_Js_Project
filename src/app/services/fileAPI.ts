@@ -52,7 +52,7 @@ const downloadFileById = async (
 // ===== Preview file by ID =====
 const previewFileById = (drive_file_id: string) => {
   try {
-    const previewLink = `${API_URL}preview?file_id=${drive_file_id}`;
+    const previewLink = `${API_URL}preview?drive_file_id=${drive_file_id}`;
     window.open(previewLink, "_blank");
   } catch (err: unknown) {
     const error = err as AxiosError;
