@@ -1,12 +1,12 @@
 import React from 'react'
 import Navbar from './components/Navbar'
-// import FileUploader from './components/FileUploader'
+import Footer from './components/footer/Footer'
 
 const page = () => {
   return (
     <div>
       <Navbar/>
-      {/* <FileUploader/> */}
+      <Footer/>
     </div>
   )
 }
