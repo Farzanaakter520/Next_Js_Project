@@ -17,7 +17,7 @@ export default function Navbar() {
             Upload
           </a>
           <a
-            href="/records"
+            href="/record"
             className="hover:text-gray-500 transition-colors duration-200 font-medium text-xl"
           >
             Report

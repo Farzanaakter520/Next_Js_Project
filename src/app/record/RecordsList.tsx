@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
 interface RecordItem {
   drive_file_id: string;
@@ -21,37 +21,43 @@ export default function RecordsPage() {
     fetchRecords();
   }, []);
 
-  const fetchRecords = async () => {
-    try {
-      const res = await axios.get<{ success: boolean; data: RecordItem[] }>(
-        "http://localhost:8000/fileupload/fileuploadapi/list"
-      );
-      setRecords(res.data.data || []);
-    } catch (err) {
-      console.error("Error fetching records:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+
+  const API_URL = "http://localhost:8000/api/v1/fileupload/fileuploadapi/";
+
+const fetchRecords = async () => {
+  try {
+    const res = await axios.post(API_URL, { action_mode: "getlist" });
+    console.log("API Response:", res.data);
+    setRecords(res.data.data || []);
+  } catch (err: unknown) {
+    const error = err as AxiosError;
+    console.error("Error fetching records:", error.response?.data || error.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleDownload = async (fileId: string, fileName: string) => {
-    try {
-      const res = await axios.post(
-        "http://localhost:8000/fileupload/fileuploadapi/download",
-        { drive_file_id: fileId, file_name: fileName },
-        { responseType: "blob" }
-      );
-      const url = window.URL.createObjectURL(new Blob([res.data]));
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", fileName);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-    } catch (err) {
-      console.error("Download failed:", err);
-    }
-  };
+  try {
+    const res = await axios.post<Blob>(
+      "http://localhost:8000/fileupload/fileuploadapi/download",
+      { drive_file_id: fileId, file_name: fileName },
+      { responseType: "blob" }
+    );
+
+    const url = window.URL.createObjectURL(new Blob([res.data]));
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", fileName);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  } catch (err) {
+    console.error("Download failed:", err);
+  }
+};
+
 
   const handlePreview = (fileId: string) => {
     window.open(
