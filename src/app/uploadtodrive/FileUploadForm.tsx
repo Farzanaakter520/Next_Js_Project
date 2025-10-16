@@ -45,8 +45,12 @@ const DOCUMENT_TYPES = [
   "Lab Results", "Prescription", "Medical History", "Insurance Document", "Other",
 ];
 
+interface FileUploadFormProps {
+  hidden?: boolean;
+}
+
 // ------------------- FileUploadForm Component -------------------
-const FileUploadForm = forwardRef<FileUploadFormRef>((_, ref) => {
+const FileUploadForm = forwardRef<FileUploadFormRef, FileUploadFormProps>(({ hidden }, ref) => {
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -118,6 +122,8 @@ const FileUploadForm = forwardRef<FileUploadFormRef>((_, ref) => {
   };
 
   const removeFile = (id: string) => setFiles(prev => prev.filter(f => f.id !== id));
+
+  if (hidden) return null; // Step 3 UI hide
 
   return (
     <div className="space-y-6">
