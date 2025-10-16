@@ -13,7 +13,7 @@ export const fileUploadSchema = z.object({
       file_name: z.string().min(1, "File name is required"),
       file_type: z.string().min(1, "File type is required"),
       document_type: z.string().min(1, "Document type is required"),
-      drive_file_id: z.string().optional(), 
+      drive_file_id: z.string().optional(), // Step 3 এ assign হবে
       remarks: z.string().optional().nullable(),
     })
   ).optional().default([]),
@@ -69,7 +69,7 @@ const FileUploadForm = forwardRef<FileUploadFormRef>((_, ref) => {
         files.forEach(f => formData.append("files", f.file));
         files.forEach(f => formData.append("document_types", f.document_type || "Other"));
 
-        // Call server action
+        // ---------------- Drive Upload ----------------
         const response = await uploadToDriveAction(formData);
 
         if (!response.success) {
@@ -112,7 +112,7 @@ const FileUploadForm = forwardRef<FileUploadFormRef>((_, ref) => {
       preview: URL.createObjectURL(file),
       name: file.name,
       type: file.type,
-      document_type: undefined,
+      document_type: undefined, // Step 3 এ select হবে
     }));
     setFiles(prev => [...prev, ...newFiles]);
   };
@@ -121,6 +121,7 @@ const FileUploadForm = forwardRef<FileUploadFormRef>((_, ref) => {
 
   return (
     <div className="space-y-6">
+      {/* File Upload UI */}
       <div
         className="border-2 border-dashed rounded-xl p-12 text-center cursor-pointer"
         onClick={() => fileInputRef.current?.click()}
@@ -136,6 +137,7 @@ const FileUploadForm = forwardRef<FileUploadFormRef>((_, ref) => {
         />
       </div>
 
+      {/* Files Preview */}
       {files.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {files.map(f => (
@@ -171,6 +173,7 @@ const FileUploadForm = forwardRef<FileUploadFormRef>((_, ref) => {
         </div>
       )}
 
+      {/* Uploading Overlay */}
       {isUploading && (
         <div className="fixed inset-0 bg-black/40 flex justify-center items-center text-white">
           Uploading files...
