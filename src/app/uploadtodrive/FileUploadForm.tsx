@@ -13,7 +13,7 @@ export const fileUploadSchema = z.object({
       file_name: z.string().min(1, "File name is required"),
       file_type: z.string().min(1, "File type is required"),
       document_type: z.string().min(1, "Document type is required"),
-      drive_file_id: z.string().optional(), // Step 3 এ assign হবে
+      drive_file_id: z.string().optional(),
       remarks: z.string().optional().nullable(),
     })
   ).optional().default([]),
@@ -55,6 +55,7 @@ const FileUploadForm = forwardRef<FileUploadFormRef, FileUploadFormProps>(({ hid
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // ------------------- Fixed Upload Logic -------------------
   useImperativeHandle(ref, () => ({
     uploadFiles: async () => {
       if (files.length === 0) return { success: false, msg: "No files to upload" };
@@ -81,17 +82,19 @@ const FileUploadForm = forwardRef<FileUploadFormRef, FileUploadFormProps>(({ hid
           return { success: false };
         }
 
-        const updatedFiles = files.map((f, i) => {
-          const driveId = response.data?.fileupload?.[i]?.drive_file_id;
-          return {
-            ...f,
-            drive_file_id: driveId,
-            url: driveId ? `https://drive.google.com/file/d/${driveId}` : undefined,
-          };
-        });
+        const formattedResponse = {
+          fileupload: files.map((f, i) => ({
+            file_name: f.name,
+            file_type: f.type.split("/")[1] || f.type,
+            document_type: f.document_type || "Other",
+            drive_file_id: response.data?.[i]?.fileId || "",
+            remarks: "Uploaded from patient registration step",
+          })),
+        };
 
-        setFiles(updatedFiles);
-        return { success: true, data: response.data };
+        console.log("📦 Formatted Upload Response:", formattedResponse);
+
+        return { success: true, data: formattedResponse };
       } catch (err) {
         console.error("Upload failed:", err);
         alert("Upload failed due to client error");
@@ -109,6 +112,7 @@ const FileUploadForm = forwardRef<FileUploadFormRef, FileUploadFormProps>(({ hid
     },
   }));
 
+  // ------------------- Handle File Input -------------------
   const handleFiles = (fileList: FileList) => {
     const newFiles = Array.from(fileList).map(file => ({
       id: Math.random().toString(36).substr(2, 9),
@@ -116,7 +120,7 @@ const FileUploadForm = forwardRef<FileUploadFormRef, FileUploadFormProps>(({ hid
       preview: URL.createObjectURL(file),
       name: file.name,
       type: file.type,
-      document_type: undefined, // Step 3 এ select হবে
+      document_type: undefined,
     }));
     setFiles(prev => [...prev, ...newFiles]);
   };
@@ -147,9 +151,27 @@ const FileUploadForm = forwardRef<FileUploadFormRef, FileUploadFormProps>(({ hid
       {files.length > 0 && (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {files.map(f => (
-            <div key={f.id} className="border p-3 rounded-lg relative">
-              <p className="truncate text-sm">{f.name}</p>
+            <div key={f.id} className="border p-3 rounded-lg relative space-y-2">
+              <p className="truncate text-sm font-medium">{f.name}</p>
 
+              {/* ---------- File Preview ---------- */}
+              {f.type.startsWith("image/") ? (
+                <img src={f.preview} alt={f.name} className="max-h-40 w-full object-contain rounded" />
+              ) : f.type === "application/pdf" ? (
+                <iframe
+                  src={f.preview}
+                  className="w-full h-40"
+                  title={f.name}
+                />
+              ) : f.type.startsWith("video/") ? (
+                <video controls className="w-full h-40 rounded">
+                  <source src={f.preview} type={f.type} />
+                </video>
+              ) : (
+                <p className="text-xs text-gray-500">Preview not available</p>
+              )}
+
+              {/* ---------- Document Type Dropdown ---------- */}
               <Select
                 value={f.document_type || ""}
                 onValueChange={v =>
@@ -158,10 +180,10 @@ const FileUploadForm = forwardRef<FileUploadFormRef, FileUploadFormProps>(({ hid
                   )
                 }
               >
-                <SelectTrigger className="h-8 mt-2">
+                <SelectTrigger className="h-8 mt-2 bg-black border rounded">
                   <SelectValue placeholder="Document Type" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className=" bg-white border rounded text-black">
                   {DOCUMENT_TYPES.map(type => (
                     <SelectItem key={type} value={type}>{type}</SelectItem>
                   ))}
