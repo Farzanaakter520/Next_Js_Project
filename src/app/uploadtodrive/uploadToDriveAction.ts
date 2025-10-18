@@ -2,11 +2,13 @@
 
 export async function uploadToDriveAction(formData: FormData) {
   try {
-    // ✅ Backend full route with prefix
-    const response = await fetch("http://localhost:8000/api/v1/fileupload/fileuploadapi/upload", {
-      method: "POST",
-      body: formData,
-    });
+    const response = await fetch(
+      "https://sdms-api-o74bb.ondigitalocean.app/api/v1/fileupload/fileuploadapi/upload",
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
 
     if (!response.ok) {
       const text = await response.text();
