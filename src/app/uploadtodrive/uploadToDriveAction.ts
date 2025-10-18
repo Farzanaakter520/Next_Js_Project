@@ -1,7 +1,39 @@
-"use server";
+"use server"; // Next.js server action
 
 export async function uploadToDriveAction(formData: FormData) {
   try {
+    // ✅ Validate file types before sending
+    const allowedTypes = [
+      "application/pdf",
+      "video/mp4",
+      "video/mov",
+      "video/avi",
+      "video/mkv",
+      "image/jpeg",
+      "image/jpg",
+      "image/pjpeg",  // extra JPEG type
+      "image/png",
+      "image/x-png",  // extra PNG type
+      "image/gif",
+    ];
+
+    const files = formData.getAll("files") as File[];
+
+    for (const file of files) {
+      // ✅ allow all image MIME types starting with "image/"
+      const isValid =
+        allowedTypes.includes(file.type) || file.type.startsWith("image/");
+
+      if (!isValid) {
+        console.error("❌ Invalid file type:", file.name, file.type);
+        return {
+          success: false,
+          msg: "Only video, PDF, and image files are allowed",
+        };
+      }
+    }
+
+    // ✅ Upload to remote server
     const response = await fetch(
       "https://sdms-api-o74bb.ondigitalocean.app/api/v1/fileupload/fileuploadapi/upload",
       {
