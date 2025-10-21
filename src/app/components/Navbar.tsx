@@ -19,6 +19,12 @@ export default function Navbar() {
               Report
             </span>
           </Link>
+
+          <Link href="/patients">
+            <span className="hover:text-gray-500 transition-colors duration-200 font-medium text-xl cursor-pointer">
+              PatientForm
+            </span>
+          </Link>
         </div>
       </div>
     </nav>

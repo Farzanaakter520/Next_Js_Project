@@ -2,9 +2,9 @@
 
 import React, { useState, useRef, forwardRef, useImperativeHandle } from "react";
 import { X, Plus } from "lucide-react";
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "../components/ui/select";
 import { z } from "zod";
 import { uploadToDriveAction } from "./uploadToDriveAction";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 // ------------------- ZOD Schema -------------------
 export const fileUploadSchema = z.object({
