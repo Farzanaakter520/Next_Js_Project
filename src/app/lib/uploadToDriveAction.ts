@@ -2,7 +2,7 @@
 
 export async function uploadToDriveAction(formData: FormData) {
   try {
-    // ✅ Validate file types before sending
+    // ✅ Allowed MIME types
     const allowedTypes = [
       "application/pdf",
       "video/mp4",
@@ -11,19 +11,18 @@ export async function uploadToDriveAction(formData: FormData) {
       "video/mkv",
       "image/jpeg",
       "image/jpg",
-      "image/pjpeg",  // extra JPEG type
+      "image/pjpeg", // extra JPEG type
       "image/png",
-      "image/x-png",  // extra PNG type
+      "image/x-png", // extra PNG type
       "image/gif",
     ];
 
     const files = formData.getAll("files") as File[];
 
+    // ✅ Validate each file
     for (const file of files) {
-      // ✅ allow all image MIME types starting with "image/"
       const isValid =
         allowedTypes.includes(file.type) || file.type.startsWith("image/");
-
       if (!isValid) {
         console.error("❌ Invalid file type:", file.name, file.type);
         return {
@@ -33,14 +32,16 @@ export async function uploadToDriveAction(formData: FormData) {
       }
     }
 
+    // ✅ Use environment variable for API base
+    const API_URL =
+      process.env.NEXT_PUBLIC_SDMS_API_BASE +
+      "/fileupload/fileuploadapi/upload";
+
     // ✅ Upload to remote server
-    const response = await fetch(
-      "https://sdms-api-o74bb.ondigitalocean.app/api/v1/fileupload/fileuploadapi/upload",
-      {
-        method: "POST",
-        body: formData,
-      }
-    );
+    const response = await fetch(API_URL, {
+      method: "POST",
+      body: formData,
+    });
 
     if (!response.ok) {
       const text = await response.text();

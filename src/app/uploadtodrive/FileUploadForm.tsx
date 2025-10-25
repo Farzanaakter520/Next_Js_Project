@@ -3,8 +3,8 @@
 import React, { useState, useRef, forwardRef, useImperativeHandle } from "react";
 import { X, Plus } from "lucide-react";
 import { z } from "zod";
-import { uploadToDriveAction } from "./uploadToDriveAction";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { uploadToDriveAction } from "../lib/uploadToDriveAction";
 
 // ------------------- ZOD Schema -------------------
 export const fileUploadSchema = z.object({
